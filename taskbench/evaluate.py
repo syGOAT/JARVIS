@@ -279,7 +279,7 @@ def evaluate(data_dir, prediction_dir, llm, split, n_tool, metric, tool_desc, to
     label_rf = open(f"{data_dir}/data.json", "r")
     for line in label_rf:
         data = json.loads(line)
-        real_tool_num = len(data["task_nodes"])
+        real_tool_num = len(json.loads(data["tool_nodes"]))
         if alignment_ids is None or data["id"] in alignment_ids:
             if split == "overall" or data["type"] == split:
                 if n_tool == "overall" or str(real_tool_num) == n_tool:
@@ -320,7 +320,7 @@ def evaluate(data_dir, prediction_dir, llm, split, n_tool, metric, tool_desc, to
 
             if "rouge" in metric or "bertscore" in metric:
                 predcition_task_step = predcition["result"]["task_steps"]
-                label_task_step = label["task_steps"]
+                label_task_step = json.loads(label["tool_steps"])
                 
                 try:
                     if isinstance(predcition_task_step[0], str):
@@ -341,8 +341,13 @@ def evaluate(data_dir, prediction_dir, llm, split, n_tool, metric, tool_desc, to
 
                 label_task_steps.append("\n".join(label_task_step))
 
-            label_nodes = label["task_nodes"]
-            predcition_nodes = predcition["result"]["task_nodes"] 
+            label_nodes = json.loads(label["tool_nodes"])
+            if isinstance(label_nodes, dict):
+                label_nodes = [label_nodes]
+            predcition_nodes = predcition["result"]["task_nodes"]
+
+            if isinstance(predcition_nodes, str):
+                predcition_nodes = json.loads(predcition_nodes)
 
             label_node_name = [node["task"] for node in label_nodes]
             predcition_node_name = [node["task"] for node in predcition_nodes]
@@ -407,7 +412,7 @@ def evaluate(data_dir, prediction_dir, llm, split, n_tool, metric, tool_desc, to
                     node["arguments"] = new_arguments
             else:
                 predcition_link = predcition["result"]["task_links"]
-                label_link = label["task_links"]
+                label_link = json.loads(label["tool_links"])
 
             predcition_node_argument = [node.get("arguments", []) for node in predcition_nodes]
             label_node_argument = [node["arguments"] for node in label_nodes]
