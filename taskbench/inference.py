@@ -50,7 +50,7 @@ def main(data_dir, temperature, top_p, api_addr, api_key, api_port, api_base, mu
     }
 
     prediction_dir = f"{data_dir}/predictions{f'_use_demos_{use_demos}' if use_demos and tag else ''}{f'_reformat_by_{ reformat_by}' if reformat and tag else ''}"
-    wf_name = f"{prediction_dir}/{llm}.json"
+    wf_name = f"{prediction_dir}/{llm}_temperature_{temperature}_topp_{top_p}_dependency_{dependency_type}.json"
     
     if not os.path.exists(prediction_dir):
         os.makedirs(prediction_dir, exist_ok=True)
